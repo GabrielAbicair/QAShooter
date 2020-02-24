@@ -6,17 +6,21 @@ public class Player_Aim : MonoBehaviour
 {
     Camera mainCamera;
     Rigidbody rb;
+    Health hp;
     [SerializeField] Transform weaponTransform;
     [SerializeField] LayerMask floorLayerMask;
 
     private void Awake()
     {
+        hp = GetComponent<Health>();
         mainCamera = Camera.main;
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
+        if (!hp.isAlive) return;
+
         AimToMouse();
     }
 

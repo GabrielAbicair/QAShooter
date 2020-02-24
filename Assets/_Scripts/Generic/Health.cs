@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.Delegates;
 
 public class Health : MonoBehaviour
 {
@@ -12,8 +13,25 @@ public class Health : MonoBehaviour
     [Header("Reference")]
     [SerializeField] Slider healthBar;
 
+    public voidDelegateNoArgs OnDeath;
+    public voidDelegateNoArgs OnGetHit;
+
+    public bool isAlive;
+    
     private void OnEnable()
     {
+        Restart();
+    }
+
+    private void OnDisable()
+    {
+        OnDeath = null;
+        OnGetHit = null;
+    }
+
+    void Restart()
+    {
+        isAlive = true;
         health = MaxHealth;
         if (healthBar != null)
         {
@@ -24,18 +42,27 @@ public class Health : MonoBehaviour
 
     public void Damage(int amount)
     {
+        if (!isAlive) return;
+
         health -= amount;
 
         if(health <= 0)
         {
             health = 0;
+            isAlive = false;
             Debug.Log(gameObject.name + " <color=grey>is dead</color>");
+            OnDeath?.Invoke();
         }
         else
         {
-            Debug.Log(gameObject.name + " received damage <color=green>(" + health + " / " + MaxHealth + ")</color>");
+            OnGetHit?.Invoke();
         }
 
-        if (healthBar != null) healthBar.value = health;
+        //TODO: Hide healthbar when full
+        if (healthBar != null)
+        {
+            healthBar.maxValue = MaxHealth;
+            healthBar.value = health;
+        }
     }
 }
